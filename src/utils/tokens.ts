@@ -19,21 +19,22 @@ export interface TokenPayload extends JwtPayload {
 }
 
 export function generateAccessToken(payload: TokenPayload): string {
-    const secret = process.env.ACCESS_TOKEN_SECRET;
+    const secret = process.env.ACCESS_TOKEN_SECRET!;
     return jwt.sign(payload, secret, ACCESS_TOKEN_OPTIONS);
 }
 
 export function generateRefreshToken(payload: TokenPayload): string {
-    const secret = process.env.REFRESH_TOKEN_SECRET;
+    const secret = process.env.REFRESH_TOKEN_SECRET!;
     return jwt.sign(payload, secret, REFRESH_TOKEN_OPTIONS);
 }
 
-export function verifyAccessToken(token: TokenPayload) {
-    const secret = process.env.ACCESS_TOKEN_SECRET;
+export function verifyAccessToken(token: string): TokenPayload {
+    const secret = process.env.ACCESS_TOKEN_SECRET!;
     return jwt.verify(token, secret) as TokenPayload;
 }
 
 export function verifyRefreshToken(token: string): TokenPayload {
-    const secret = process.env.REFRESH_TOKEN_SECRET;
+    const secret = process.env.REFRESH_TOKEN_SECRET!;
     return jwt.verify(token, secret) as TokenPayload
 }
+
