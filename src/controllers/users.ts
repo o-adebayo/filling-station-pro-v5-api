@@ -113,3 +113,23 @@ export async function loginUser(req: TypedRequestBody<UserLoginProps>, res: Resp
   }
 }
 
+
+export async function getAllUsers(req: Request, res: Response) {
+  try {
+    const users = await db.user.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+      }
+    });
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+  }
+}
+

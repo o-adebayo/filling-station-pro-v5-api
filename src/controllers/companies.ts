@@ -56,6 +56,7 @@ export async function createCompany(req: Request, res: Response) {
     });
   }
 }
+
 export async function getCompanies(req: Request, res: Response) {
   try {
     const companies = await db.company.findMany({
@@ -68,16 +69,24 @@ export async function getCompanies(req: Request, res: Response) {
     console.log(error);
   }
 }
-// export async function getCustomerById(req: Request, res: Response) {
-//   const { id } = req.params;
-//   try {
-//     const customer = await db.customer.findUnique({
-//       where: {
-//         id,
-//       },
-//     });
-//     return res.status(200).json(customer);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
+
+export async function getCompanyById(req: Request, res: Response) {
+  const { id } = req.params;
+  try {
+    const company = await db.company.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        name: true,
+        logo: true,
+        slug: true,
+        companyCode: true,
+      }
+    });
+    return res.status(200).json(company);
+  } catch (error) {
+    console.log(error);
+  }
+}
