@@ -42,8 +42,10 @@ export async function createCompany(req: Request, res: Response) {
     console.log(
       `Company created successfully: ${newCompany.name} (${newCompany.id})`
     );
+    // remove the createdAt and updatedAt fields from the return
+    const {createdAt, updatedAt, ...others} = newCompany;
     return res.status(201).json({
-      data: newCompany,
+      data: others,
       error: null,
     });
   } catch (error) {
