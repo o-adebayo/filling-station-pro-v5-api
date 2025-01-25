@@ -9,14 +9,515 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model School {
-  id String @id @default(cuid()) // or use @default(uuid()) for UUID
-  name      String
-  logo      String?
-  slug String @unique
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+
+model Company {
+  id          String  @id @default(cuid()) // or use @default(uuid()) for UUID
+  name        String
+  logo        String?
+  slug        String  @unique
+  companyCode String  @unique
+
+  // Add relationships
+  managers        Manager[] // one-to-many relation to Manager
+  attendants      Attendant[] // one-to-many relation to Manager
+  drivers         Driver[] // one-to-many relation to Manager
+  states          State[] // one-to-many relation to State
+  stations        Station[] // one-to-many relation to Station
+  fleets          Fleet[]
+  //attendance  Attendance[]
+  //leaves      Leave[]
+  maintenanceLogs MaintenanceLog[]
+  //fleetDocuments  FleetDocument[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("companies")
+}
+
+model Contact {
+  id              String   @id @default(cuid())
+  fullName        String
+  email           String   @unique
+  phone           String
+  company         String   @unique
+  country         String
+  fillingStations Int
+  users           Int
+  role            String
+  media           String
+  message         String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("contacts")
+}
+
+model User {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  password String
+  role     UserRole
+  name     String
+  phone    String?
+  image    String?
+
+  // Company-related fields
+  companyId   String?
+  companyName String?
+
+  // One-to-One Relationships
+  manager   Manager?
+  attendant Attendant?
+  driver    Driver?
+
+  refreshTokens RefreshToken[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model RefreshToken {
+  ud        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Manager {
+  id String @id @default(cuid())
+
+  companyId String // foreign key to Company
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // One-to-One relationship with User
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String // Full name
+  firstName   String
+  lastName    String
+  gender      Gender       @default(MALE)
+  dob         String // Date of birth
+  staffType   StaffType    @default(FT)
+  stateId     String
+  stateName   String? // Optional since not all users might be assigned to a state
+  stationId   String
+  stationName String? // Optional since not all users might be assigned to a station
+  phone       String? // Optional since not all users might have a phone number
+  nationality String
+  religion    String
+  email       String       @unique
+  password    String
+  staffNo     String       @unique
+  hireDate    String
+  address     String
+  imageUrl    String? // Optional since images might not always be present
+  status      String       @default("Active")
+  attendance  Attendance[]
+  leave       Leave[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relationships
+  state   State   @relation(fields: [stateId], references: [id])
+  station Station @relation(fields: [stationId], references: [id])
+  //@@index([companyId])
+
+  @@map("managers")
+}
+
+model Attendant {
+  id String @id @default(cuid())
+
+  companyId String // foreign key to Company
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // One-to-One relationship with User
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String // Full name
+  firstName   String
+  lastName    String
+  gender      Gender       @default(MALE)
+  dob         String // Date of birth
+  //staffType   String?  @default("FT") // Full-time
+  staffType   StaffType    @default(FT)
+  stateId     String
+  stateName   String? // Optional since not all users might be assigned to a state
+  stationId   String
+  stationName String? // Optional since not all users might be assigned to a station
+  phone       String? // Optional since not all users might have a phone number
+  nationality String
+  religion    String
+  email       String       @unique
+  password    String
+  staffNo     String       @unique
+  hireDate    String
+  address     String
+  imageUrl    String? // Optional since images might not always be present
+  status      String       @default("Active")
+  attendance  Attendance[]
+  leave       Leave[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relationships
+  state   State   @relation(fields: [stateId], references: [id])
+  station Station @relation(fields: [stationId], references: [id])
+  //@@index([companyId])
+
+  @@map("attendants")
+}
+
+model Driver {
+  id String @id @default(cuid())
+
+  companyId String // foreign key to Company
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // One-to-One relationship with User
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String // Full name
+  firstName   String
+  lastName    String
+  gender      Gender       @default(MALE)
+  dob         String // Date of birth
+  staffType   StaffType    @default(FT)
+  phone       String
+  nationality String
+  religion    String
+  //role        UserRole     @default(DRIVER)
+  email       String       @unique
+  password    String
+  staffNo     String       @unique
+  hireDate    String
+  address     String
+  imageUrl    String
+  status      String       @default("Active")
+  attendance  Attendance[]
+  leave       Leave[]
+
+  // Driving License
+  licenseNumber String
+  licenseExpiry String
+  licenseClass  String
+
+  // Relationships
+  fleetId      String?
+  fleetPlateNo String?
+  fleet        Fleet?  @relation(fields: [fleetId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //@@index([companyId])
+
+  @@map("drivers")
+}
+
+model State {
+  id String @id @default(cuid())
+
+  companyId String // foreign key to Company
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  name       String
+  slug       String      @unique
+  stations   Station[] // one-to-many relation to Station
+  //users      User[] // one-to-many relation to User
+  managers   Manager[] // one-to-many relation to Manager
+  attendants Attendant[] // one-to-many relation to Attendant
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@map("states")
+}
+
+model Station {
+  id String @id @default(cuid())
+
+  companyId String // foreign key to Company
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  name            String
+  slug            String  @unique
+  stateId         String // foreign key to State
+  state           State   @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  status          String  @default("Active")
+  // PMS (Premium Motor Spirit) Information
+  pms             Boolean @default(true)
+  pmsDippingTanks Int     @default(0)
+  pmsPumps        Int     @default(0)
+
+  // AGO (Automotive Gas Oil) Information
+  ago             Boolean @default(true)
+  agoDippingTanks Int     @default(0)
+  agoPumps        Int     @default(0)
+
+  // DPK (Dual Purpose Kerosene) Information
+  dpk             Boolean @default(true)
+  dpkDippingTanks Int     @default(0)
+  dpkPumps        Int     @default(0)
+
+  //users      User[] // one-to-many relation to User
+  managers   Manager[] // one-to-many relation to Manager
+  attendants Attendant[] // one-to-many relation to Attendant
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stations")
+}
+
+model Attendance {
+  id String @id @default(cuid())
+
+  // companyId String // foreign key to Company
+  // company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  managerId   String?
+  manager     Manager?         @relation(fields: [managerId], references: [id])
+  attendantId String?
+  attendant   Attendant?       @relation(fields: [attendantId], references: [id])
+  driverId    String?
+  driverName  String?
+  driver      Driver?          @relation(fields: [driverId], references: [id])
+  date        DateTime         @default(now())
+  checkIn     DateTime?
+  checkOut    DateTime?
+  status      AttendanceStatus
+  note        String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  //@@index([userId, date])
+  //@@index([companyId])
+  @@map("attendances")
+}
+
+model Leave {
+  id String @id @default(cuid())
+
+  // companyId String // foreign key to Company
+  // company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  managerId   String?
+  manager     Manager?    @relation(fields: [managerId], references: [id])
+  attendantId String?
+  attendant   Attendant?  @relation(fields: [attendantId], references: [id])
+  driverId    String?
+  driverName  String?
+  driver      Driver?     @relation(fields: [driverId], references: [id])
+  type        LeaveType
+  startDate   DateTime
+  endDate     DateTime
+  duration    Int // Number of days
+  status      LeaveStatus @default(PENDING)
+  reason      String
+  approvedBy  String? // Could be linked to another User if needed
+  approvedAt  DateTime?
+  comments    String?
+  documents   String? // URLs to supporting documents if any
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // @@index([userId, startDate, endDate])
+  //@@index([companyId])
+  @@map("leaves")
+}
+
+model Fleet {
+  id String @id @default(cuid())
+
+  companyId String // foreign key to Company
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  fleetType       String
+  registrationNo  String           @unique
+  plateNo         String           @unique
+  model           String
+  capacity        Int? // in liters
+  manufactureYear String
+  imageUrl        String
+  status          FleetStatus      @default(ACTIVE)
+  //status          String           @default("ACTIVE")
+  lastMaintenance String?
+  nextMaintenance String?
+  fuelType        FuelType
+  //fuelType        String
+  driverName      String? // Could be linked to User if drivers are users
+  insuranceExpiry String
+  documents       FleetDocument[] // URLs to vehicle documents
+  maintenanceLog  MaintenanceLog[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relationships
+  driverId String?  @unique // Foreign key to Driver
+  Driver   Driver[]
+  // driver   Driver? @relation(fields: [driverId], references: [id])
+
+  //@@index([companyId])
+
+  @@map("fleets")
+}
+
+model FleetDocument {
+  id String @id @default(cuid())
+
+  //companyId String // foreign key to Company
+  //company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  fleetId     String
+  fleet       Fleet        @relation(fields: [fleetId], references: [id])
+  type        DocumentType
+  documentUrl String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  //@@index([companyId])
+  @@index([fleetId])
+  @@map("fleet_documents")
+}
+
+model MaintenanceLog {
+  id String @id @default(cuid())
+
+  companyId String // foreign key to Company
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  fleetId      String
+  fleetPlateNo String
+  fleet        Fleet           @relation(fields: [fleetId], references: [id], onDelete: Cascade)
+  type         MaintenanceType
+  date         String
+  cost         Float
+  description  String
+  technician   String? // Could be linked to User if internal maintenance
+  location     String?
+  parts        String? // Could be JSON array of parts replaced
+  nextService  String?
+  imageUrl     String // URLs to invoices or service reports
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([fleetId, date])
+  //@@index([companyId])
+  @@map("maintenance_logs")
+}
+
+// Enums for User related fields
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum StaffType {
+  FT
+  PT
+  CO
+  TE
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  SUPERVISOR
+  OPERATOR
+  DRIVER
+  ACCOUNTANT
+  MAINTENANCE
+  ATTENDANT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+// Enums for Attendance and Leave
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+}
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  MATERNITY
+  PATERNITY
+  COMPASSIONATE
+  UNPAID
+  STUDY
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+// Enums for Transportation
+enum FleetStatus {
+  ACTIVE
+  MAINTENANCE
+  RETIRED
+  OUT_OF_SERVICE
+}
+
+enum FuelType {
+  PMS
+  AGO
+  DPK
+  HYBRID
+  NONE
+}
+
+enum TripStatus {
+  PLANNED
+  LOADING
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+  DELAYED
+}
+
+enum DocumentType {
+  REGISTRATION
+  INSURANCE
+  ROADWORTHINESS
+  PERMIT
+  MAINTENANCE_RECORD
+  INSPECTION_REPORT
+  DRIVER_LICENSE
+  VEHICLE_LICENSE
+  PROOF_OF_OWNERSHIP
+  OTHER
+}
+
+enum MaintenanceType {
+  ROUTINE
+  REPAIR
+  EMERGENCY
+  INSPECTION
 }

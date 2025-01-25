@@ -1,13 +1,14 @@
 -- CreateTable
-CREATE TABLE "School" (
+CREATE TABLE "Company" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "logo" TEXT,
     "slug" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "School_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "School_slug_key" ON "School"("slug");
+CREATE UNIQUE INDEX "Company_slug_key" ON "Company"("slug");
