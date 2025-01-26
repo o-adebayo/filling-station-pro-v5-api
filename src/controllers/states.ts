@@ -53,6 +53,7 @@ export async function getStates(req: Request, res: Response) {
               select: { 
                 //users: true,
                 attendants: true,
+                managers: true,
               }
             }
           }
@@ -61,6 +62,7 @@ export async function getStates(req: Request, res: Response) {
           select: { 
             //users: true, 
             attendants: true,
+            managers: true,
           }
         }
       },
@@ -110,19 +112,20 @@ export async function createStation(req: TypedRequestBody<StationCreateProps>, r
     }
 
     // Convert string numbers to integers
-    const processedData = {
-      ...data,
-      slug,
-      pmsDippingTanks: +data.pmsDippingTanks,
-      pmsPumps: +data.pmsPumps,
-      agoDippingTanks: +data.agoDippingTanks,
-      agoPumps: +data.agoPumps,
-      dpkDippingTanks: +data.dpkDippingTanks,
-      dpkPumps: +data.dpkPumps,
-    };
+    // const processedData = {
+    //   ...data,
+    //   slug,
+    //   pmsDippingTanks: +data.pmsDippingTanks,
+    //   pmsPumps: +data.pmsPumps,
+    //   agoDippingTanks: +data.agoDippingTanks,
+    //   agoPumps: +data.agoPumps,
+    //   dpkDippingTanks: +data.dpkDippingTanks,
+    //   dpkPumps: +data.dpkPumps,
+    // };
 
     const newStation = await db.station.create({
-      data: processedData
+      //data: processedData
+      data
     });
     console.log(
       `Filling Station created successfully: ${newStation.name} (${newStation.id})`

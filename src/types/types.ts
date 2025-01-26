@@ -51,6 +51,7 @@ export type UserLoginProps = {
 // Manager CreateProps
 export type ManagerCreateProps = {
   companyId: string;
+  companyName: string;
   userId: string;
   name: string;
   firstName: string;
@@ -78,6 +79,7 @@ export type ManagerCreateProps = {
 // Attendant CreateProps
 export type AttendantCreateProps = {
   companyId: string;
+  companyName: string;
   userId: string;
   name: string;
   firstName: string;
@@ -104,6 +106,7 @@ export type AttendantCreateProps = {
 // Driver CreateProps
 export type DriverCreateProps = {
   companyId: string;
+  companyName: string;
   userId: string;
   name: string;
   firstName: string;

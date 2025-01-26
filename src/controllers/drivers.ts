@@ -1,7 +1,9 @@
 import { db } from "@/db/db";
 import { DriverCreateProps, TypedRequestBody, UserCreateProps } from "@/types/types";
 import { convertDateToIso } from "@/utils/convertDateToIso";
+import { UserRole } from "@prisma/client";
 import { Request, Response } from "express";
+import { createUserService } from "./users";
 
 export async function createDriver(req: TypedRequestBody<DriverCreateProps>, res: Response) {
   const data = req.body;
@@ -41,6 +43,22 @@ export async function createDriver(req: TypedRequestBody<DriverCreateProps>, res
         error: "Driver with this staff number already exists",
       });
     }
+     // first lets create the attendant as a User with the CreateUserService controller function
+     const userData = {
+      email: data.email,
+      password: data.password,
+      role: "DRIVER" as UserRole,
+      name: data.name,
+      phone: data.phone,
+      image: data.imageUrl,
+      companyId: data.companyId,
+      companyName: data.companyName,
+    }
+    const user = await createUserService(userData);
+
+    // Noe get the ID from the newly created user profile and use it
+    // as the userId in the Attendant table as we create new attendants
+    data.userId = user.id;
     const newDriver = await db.driver.create({
       data
     });

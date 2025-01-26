@@ -1,7 +1,9 @@
 import { db } from "@/db/db";
 import { ManagerCreateProps, TypedRequestBody } from "@/types/types";
 import { convertDateToIso } from "@/utils/convertDateToIso";
+import { UserRole } from "@prisma/client";
 import { Request, Response } from "express";
+import { createUserService } from "./users";
 
 export async function createManager(req: TypedRequestBody<ManagerCreateProps>, res: Response) {
   const data = req.body;
@@ -39,6 +41,22 @@ export async function createManager(req: TypedRequestBody<ManagerCreateProps>, r
         error: "Manager with this staff number already exists",
       });
     }
+     // first lets create the attendant as a User with the CreateUserService controller function
+     const userData = {
+      email: data.email,
+      password: data.password,
+      role: "MANAGER" as UserRole,
+      name: data.name,
+      phone: data.phone,
+      image: data.imageUrl,
+      companyId: data.companyId,
+      companyName: data.companyName,
+    }
+    const user = await createUserService(userData);
+
+    // Noe get the ID from the newly created user profile and use it
+    // as the userId in the Attendant table as we create new attendants
+    data.userId = user.id;
     const newManager = await db.manager.create({
       data
     });
