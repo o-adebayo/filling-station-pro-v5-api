@@ -92,11 +92,32 @@ export async function getDrivers(req: Request, res: Response) {
   }
 }
 
-export async function getBriefDrivers(req: Request, res: Response) {
+export async function getDriversByCompanyId(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const drivers = await db.driver.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
+      },
+    });
+    return res.status(200).json(drivers);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getBriefDrivers(req: Request, res: Response) {
+  const {companyId} = req.params;
+  try {
+    const drivers = await db.driver.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        companyId
       },
       select:{
         id: true,
@@ -111,10 +132,14 @@ export async function getBriefDrivers(req: Request, res: Response) {
 
 
 export async function getNextDriverSeq(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const lastDriver = await db.driver.findFirst({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
       },
     });
     // CC/FT/DR/2024/0001

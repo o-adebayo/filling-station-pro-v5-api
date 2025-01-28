@@ -90,11 +90,32 @@ export async function getManagers(req: Request, res: Response) {
   }
 }
 
-export async function getBriefManagers(req: Request, res: Response) {
+export async function getManagersByCompanyId(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const managers = await db.manager.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
+      },
+    });
+    return res.status(200).json(managers);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getBriefManagers(req: Request, res: Response) {
+  const {companyId} = req.params;
+  try {
+    const managers = await db.manager.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        companyId
       },
       select: {
         id: true,
@@ -109,10 +130,14 @@ export async function getBriefManagers(req: Request, res: Response) {
 
 
 export async function getNextManagerSeq(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const lastManager = await db.manager.findFirst({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
       },
     });
     // CC/FT/SW/2024/0001

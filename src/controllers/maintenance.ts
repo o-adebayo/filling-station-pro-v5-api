@@ -59,11 +59,32 @@ export async function getMaintenances(req: Request, res: Response) {
   }
 }
 
+export async function getMaintenancesByCompanyId(req: Request, res: Response) {
+  const {companyId} = req.params;
+  try {
+    const maintenanceLogs = await db.maintenanceLog.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        companyId
+      },
+    });
+    return res.status(200).json(maintenanceLogs);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export async function getBriefMaintenances(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const drivers = await db.maintenanceLog.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
       },
       select:{
         id: true,

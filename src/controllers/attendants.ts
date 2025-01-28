@@ -90,11 +90,33 @@ export async function getAttendants(req: Request, res: Response) {
   }
 }
 
-export async function getBriefAttendants(req: Request, res: Response) {
+
+export async function getAttendantsByCompanyId(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const attendants = await db.attendant.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
+      },
+    });
+    return res.status(200).json(attendants);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getBriefAttendants(req: Request, res: Response) {
+  const {companyId} = req.params;
+  try {
+    const attendants = await db.attendant.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        companyId
       },
       select: {
         id: true,
@@ -109,10 +131,14 @@ export async function getBriefAttendants(req: Request, res: Response) {
 
 
 export async function getNextAttendantSeq(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const lastAttendant = await db.attendant.findFirst({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
       },
     });
     // CC/FT/SW/2024/0001

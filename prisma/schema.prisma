@@ -96,8 +96,9 @@ model RefreshToken {
 model Manager {
   id String @id @default(cuid())
 
-  companyId String // foreign key to Company
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String // foreign key to Company
+  companyName String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // One-to-One relationship with User
   userId String @unique
@@ -139,8 +140,9 @@ model Manager {
 model Attendant {
   id String @id @default(cuid())
 
-  companyId String // foreign key to Company
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String // foreign key to Company
+  companyName String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // One-to-One relationship with User
   userId String @unique
@@ -183,8 +185,9 @@ model Attendant {
 model Driver {
   id String @id @default(cuid())
 
-  companyId String // foreign key to Company
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String // foreign key to Company
+  companyName String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // One-to-One relationship with User
   userId String @unique

@@ -74,11 +74,52 @@ export async function getStates(req: Request, res: Response) {
   }
 }
 
-export async function getBriefStates(req: Request, res: Response) {
+export async function getStatesByCompanyId(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const states = await db.state.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
+      },
+      include: {
+        stations: {
+          include: {
+            _count: {
+              select: { 
+                //users: true,
+                attendants: true,
+                managers: true,
+              }
+            }
+          }
+        },
+        _count: {
+          select: { 
+            //users: true, 
+            attendants: true,
+            managers: true,
+          }
+        }
+      },
+    });
+    return res.status(200).json(states);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({error: "Failed to fetch states"});
+  }
+}
+export async function getBriefStates(req: Request, res: Response) {
+  const {companyId} = req.params;
+  try {
+    const states = await db.state.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        companyId
       },
       select: {
         id: true,
@@ -156,11 +197,32 @@ export async function getStations(req: Request, res: Response) {
   }
 }
 
-export async function getBriefStations(req: Request, res: Response) {
+export async function getStationsByCompanyId(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const stations = await db.station.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
+      },
+    });
+    return res.status(200).json(stations);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getBriefStations(req: Request, res: Response) {
+  const {companyId} = req.params;
+  try {
+    const stations = await db.station.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        companyId
       },
       select: {
         id: true,

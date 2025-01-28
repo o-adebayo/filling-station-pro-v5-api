@@ -78,11 +78,32 @@ export async function getFleets(req: Request, res: Response) {
   }
 }
 
-export async function getBriefFleets(req: Request, res: Response) {
+export async function getFleetsByCompanyId(req: Request, res: Response) {
+  const {companyId} = req.params;
   try {
     const fleets = await db.fleet.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        companyId
+      },
+    });
+    return res.status(200).json(fleets);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getBriefFleets(req: Request, res: Response) {
+  const {companyId} = req.params;
+  try {
+    const fleets = await db.fleet.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        companyId
       },
       select: {
         id: true,

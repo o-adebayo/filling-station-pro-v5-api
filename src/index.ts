@@ -8,6 +8,7 @@ import fleetRouter from "./routes/fleets";
 import maintenanceRouter from "./routes/maintenance";
 import managerRouter from "./routes/managers";
 import attendantRouter from "./routes/attendants";
+import analyticsRouter from "./routes/analytics";
 
 require("dotenv").config();
 const cors = require("cors");
@@ -31,4 +32,5 @@ app.use("/api/v1", fleetRouter);
 app.use("/api/v1", maintenanceRouter);
 app.use("/api/v1", managerRouter);
 app.use("/api/v1", attendantRouter);
+app.use("/api/v1", analyticsRouter);
 
